@@ -29,7 +29,7 @@ const Select: React.FC = () => {
   return (
     <div className="select-container">
       <label htmlFor="input-1">Input 1</label>
-      <div className="input-container">
+      <div className="input-container" onBlur={(e) => setIsOpen(() => false)}>
         <input
           className="search-input"
           id={'input-1'}  
