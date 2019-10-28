@@ -32,19 +32,21 @@ const Select: React.FC = () => {
       <div className="input-container">
         <input
           className="search-input"
-          id={'input-1'}
+          id={'input-1'}  
           type="text"
-          onClick={(e) => setIsOpen( prev => !prev)}
+          onFocus={(e) => setIsOpen(() => true)}
           value={searchValue ? searchValue : ''}
           onChange={(e) => {
            const val = e.target.value.trim()
-            setSearchValue(prev => val)
+           const v = e.target.value.trimStart();
+            setSearchValue(prev => v)
             if (val) {
               let filteredItems = dropdownItems.map((item: {
                 label: string
                 value: string
               }) =>  {
-                if (/`${val}`/.test(item.label)) {
+
+                if (new RegExp(val).test(`${item.label}`)) {
                   return item
                 } else {
                   return null;
@@ -64,28 +66,36 @@ const Select: React.FC = () => {
             }
           }}          
           onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === '' || e.key === 'ArrowDown')
-            setIsOpen( prev => {
-              if(!prev){
-                setTimeout(() => {
-                  myRef.current.children[currentFocus].focus()
-                }, 0)
+            if (e.key === 'ArrowDown') {
+              if(isOpen) {
+                myRef.current.children[currentFocus].focus()
+              } else {
+
               }
-            return !prev})
-          }}
+              setIsOpen(prev => {
+                if(prev){
+                  setTimeout(() => {
+                    myRef.current.children[currentFocus].focus()
+                  }, 0)
+                  return prev
+                }
+                return !prev
+              })
+            }}}
         />
         <button 
-          className="drop-btn"
-          onClick={(e) => setIsOpen( prev => !prev)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === '' || e.key === 'ArrowDown')
-            setIsOpen( prev => {
-              if(!prev){
+          className="drop-btn"  
+          tabIndex={-1}
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsOpen(prev => {
+              if (!prev) {
                 setTimeout(() => {
                   myRef.current.children[currentFocus].focus()
                 }, 0)
               }
-            return !prev})
+              return !prev
+            })
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="31" height="31" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="bevel"><path d="M6 9l6 6 6-6"/></svg>
@@ -96,6 +106,7 @@ const Select: React.FC = () => {
           ref={myRef}
           className={`dropdown ${isOpen ? 'show-dropdown' : ''}`}
           onKeyDown={(e) => {
+            e.stopPropagation()
             if (e.key === 'ArrowDown') {
               if (
               currentFocus === myRef.current.children.length - 1) {
