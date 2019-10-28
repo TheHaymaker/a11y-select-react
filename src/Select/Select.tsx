@@ -14,6 +14,18 @@ const Select: React.FC = () => {
     {
       value: '3',
       label: 'Option 3'
+    },
+    {
+      value: '4',
+      label: 'Option 4'
+    },
+    {
+      value: '5',
+      label: 'Option 5'
+    },
+    {
+      value: '6',
+      label: 'Option 6'
     }
   ]
 
@@ -66,18 +78,28 @@ const Select: React.FC = () => {
             } else {
               setFilteredDropdownItems(() => dropdownItems)
             }
-          }}          
+          }}
+          onKeyPress={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
+          onKeyUp={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}       
           onKeyDown={(e) => {
+            e.stopPropagation()
             if (e.key === 'ArrowDown') {
+              e.preventDefault()
               if(isOpen) {
                 myRef.current.children[currentFocus].focus()
-              } else {
-
+                myRef.current.children[currentFocus].scrollIntoView()
               }
               setIsOpen(prev => {
                 if(prev){
                   setTimeout(() => {
                     myRef.current.children[currentFocus].focus()
+                    myRef.current.children[currentFocus].scrollIntoView()
                   }, 0)
                   return prev
                 }
@@ -114,24 +136,46 @@ const Select: React.FC = () => {
         <ul
           ref={myRef}
           className={`dropdown ${isOpen ? 'show-dropdown' : ''}`}
+          onKeyPress={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
+          onKeyUp={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
           onKeyDown={(e) => {
             e.stopPropagation()
             if (e.key === 'ArrowDown') {
+              e.preventDefault()
               if (
               currentFocus === myRef.current.children.length - 1) {
+               setTimeout(() => {
                 myRef.current.children[0].focus()
+                myRef.current.children[0].scrollIntoView()
+               }, 0)
                 setCurrentFocus(prev => 0)
               } else {
-                myRef.current.children[currentFocus + 1].focus()
+                setTimeout(() => {
+                  myRef.current.children[currentFocus + 1].focus()
+                  myRef.current.children[currentFocus + 1].scrollIntoView()
+                 }, 0)
                 setCurrentFocus( prev => prev + 1)
               }
             } else if (e.key === 'ArrowUp') {
+              e.preventDefault()
               if (
               currentFocus === 0) {
-                myRef.current.children[myRef.current.children.length - 1].focus()
+                setTimeout(() => {   
+                  myRef.current.children[myRef.current.children.length - 1].focus()
+                  myRef.current.children[myRef.current.children.length - 1].scrollIntoView()
+                 }, 0)
                 setCurrentFocus(prev =>  myRef.current.children.length - 1)
               } else {
-                myRef.current.children[currentFocus - 1].focus()
+                setTimeout(() => {
+                  myRef.current.children[currentFocus - 1].focus()
+                  myRef.current.children[currentFocus - 1].scrollIntoView()
+                 }, 0)
                 setCurrentFocus( prev => prev - 1)    
               }
             }
@@ -141,6 +185,7 @@ const Select: React.FC = () => {
           ? filteredDropdownItems.map((item, index) => (
               <li 
                key={item.value}
+               id={`listItem--${item.value}`}
                className="dropdownItem" 
                data-value={item.value}
                tabIndex={-1}
