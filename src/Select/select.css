@@ -59,3 +59,9 @@ li.dropdownItem {
   list-style: none;
   padding: 2px 5px;
 }
+
+li.dropdownItem:focus {
+  background-color: rgb(43, 87, 231);
+  color: whitesmoke;
+  box-shadow: inset 0px 0px 0px 1px rgb(43, 87, 231);
+}
