@@ -18,6 +18,7 @@ const Select: React.FC = () => {
   ]
 
   const myRef = React.useRef(null as any)
+  const searchRef = React.useRef(null as any)
   const [dropdownItems, setDropdownItems] = React.useState(options)
   const [filteredDropdownItems, setFilteredDropdownItems] = React.useState(options as any[])
   const [isOpen, setIsOpen] = React.useState(false)
@@ -31,6 +32,7 @@ const Select: React.FC = () => {
       <label htmlFor="input-1">Input 1</label>
       <div className="input-container" onBlur={(e) => setIsOpen(() => false)}>
         <input
+          ref={searchRef}
           className="search-input"
           id={'input-1'}  
           type="text"
@@ -88,14 +90,21 @@ const Select: React.FC = () => {
           tabIndex={-1}
           onClick={(e) => {
             e.stopPropagation()
-            setIsOpen(prev => {
-              if (!prev) {
-                setTimeout(() => {
-                  myRef.current.children[currentFocus].focus()
-                }, 0)
-              }
-              return !prev
-            })
+            if (!isOpen) {
+              setIsOpen(prev => !prev)
+              searchRef.current.focus()
+            } else {
+              setIsOpen(prev => !prev)
+              searchRef.current.blur()
+            }
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
+          onMouseUp={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="31" height="31" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="bevel"><path d="M6 9l6 6 6-6"/></svg>
