@@ -78,15 +78,7 @@ const Select: React.FC = () => {
             } else {
               setFilteredDropdownItems(() => dropdownItems)
             }
-          }}
-          onKeyPress={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-          }}
-          onKeyUp={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-          }}       
+          }}      
           onKeyDown={(e) => {
             e.stopPropagation()
             if (e.key === 'ArrowDown') {
