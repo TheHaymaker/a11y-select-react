@@ -5,7 +5,11 @@ import {Select} from "./Select"
 
 
 const App: React.FC = (): React.ReactElement => (
-  <Select />
+  <div>
+    <Select />
+    <br/>
+    <button>something else</button>
+  </div>
 )
 
 export default App

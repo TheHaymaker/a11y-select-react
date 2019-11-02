@@ -1,7 +1,26 @@
 import * as React from 'react'
 import { escapeRegExp } from '../utils'
 
+
+
 const Select: React.FC = () => {
+  let _timeoutID: any;
+  const [isManagingFocus, setIsManagingFocus] = React.useState(false)
+    
+    const _onBlur = () => {
+      _timeoutID = setTimeout(() => {
+        if (isManagingFocus) {
+          setIsManagingFocus(() => false);
+        }
+      }, 0);
+    }
+    
+    const _onFocus = () => {
+      clearTimeout(_timeoutID);
+      if (!isManagingFocus) {
+        setIsManagingFocus(() => true)
+      }
+    }
 
   const options = [
     {
@@ -40,6 +59,13 @@ const Select: React.FC = () => {
   const [currentFocus, setCurrentFocus] = React.useState(0)
   const [searchValue, setSearchValue] = React.useState('')
 
+  React.useEffect(() => {
+  
+    if(!isManagingFocus) {
+      setIsOpen(false)
+    }
+
+  }, [isManagingFocus])
 
   return (
     <div
@@ -47,15 +73,22 @@ const Select: React.FC = () => {
       className="select-container"
       aria-haspopup={true}
       aria-expanded={false}
+      onBlur={_onBlur}
+      onFocus={_onFocus}
     >
+      {console.log(isManagingFocus)}
       <label htmlFor="input-1">Input 1</label>
-      <div className="input-container" onBlur={(e) => setIsOpen(() => false)}>
+      <div className="input-container">
         <input
           ref={searchRef}
           className="search-input"
           id={'input-1'}  
           type="text"
-          onFocus={(e) => setIsOpen(() => true)}
+          onFocus={(e) => setIsOpen(() => { 
+            const wrapper = containerRef.current;
+            wrapper.setAttribute('aria-expanded', true)
+            return true 
+          })}
           value={searchValue ? searchValue : ''}
           onChange={(e) => {
            const val = escapeRegExp(e.target.value.trim())
@@ -96,9 +129,11 @@ const Select: React.FC = () => {
                 el.focus()
                 el.scrollIntoView()
               }
-              setIsOpen(prev => {
+              setIsOpen(prev => { 
+                const wrapper = containerRef.current;
                 if(prev){
                   const el =  myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
+
                   setTimeout(() => {
                    el.focus()
                     el.scrollIntoView()
@@ -161,7 +196,6 @@ const Select: React.FC = () => {
                }, 0)
               } else {
                 setTimeout(() => {
-                  // TODO: check length of myRef.current.children first
                   if(myRef.current.children.length <= currentFocus) {
                     myRef.current.children[0].focus()
                     myRef.current.children[0].scrollIntoView()
@@ -179,7 +213,6 @@ const Select: React.FC = () => {
               if (
                 currentFocus === 0 && myRef.current.children.length > 0) {
                   setTimeout(() => {   
-                    // TODO: check length of myRef.current.children first
                     myRef.current.children[myRef.current.children.length - 1].focus()
                     myRef.current.children[myRef.current.children.length - 1].scrollIntoView()
                     setCurrentFocus(prev =>  myRef.current.children.length - 1)
