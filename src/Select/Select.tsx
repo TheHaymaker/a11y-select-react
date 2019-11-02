@@ -8,16 +8,36 @@ const Select: React.FC = () => {
   const [isManagingFocus, setIsManagingFocus] = React.useState(false)
     
     const _onBlur = () => {
+      console.log('Blur Fired')
+      // since the blue event emits first
+      // we push the state update to the next
+      // 'tick' on the event loop
+      // by using a setTimeout
       _timeoutID = setTimeout(() => {
         if (isManagingFocus) {
           setIsManagingFocus(() => false);
+          console.log('State set inside Timeout!')
         }
       }, 0);
     }
     
     const _onFocus = () => {
+      console.log('Focus happened')
+
+      // Since the focus event is emitted
+      // directly after the blur event,
+      // and they both bubble up in react,
+      // we can cancel the state change
+      // that takes place inside of the
+      // blur event's setTimeout by clearing
+      // the timeout interval before it takes place
+      // on the event loop
+      // Otherwise, only the blur event is emitted
+      // when the parent loses focus to another
+      // element on the page
       clearTimeout(_timeoutID);
       if (!isManagingFocus) {
+        console.log('State set inside Focus')
         setIsManagingFocus(() => true)
       }
     }
