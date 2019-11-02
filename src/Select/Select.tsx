@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { escapeRegExp } from '../utils'
 
 const Select: React.FC = () => {
 
@@ -31,6 +32,7 @@ const Select: React.FC = () => {
 
   const myRef = React.useRef(null as any)
   const searchRef = React.useRef(null as any)
+  const containerRef = React.useRef(null as any)
   const [dropdownItems, setDropdownItems] = React.useState(options)
   const [filteredDropdownItems, setFilteredDropdownItems] = React.useState(options as any[])
   const [isOpen, setIsOpen] = React.useState(false)
@@ -40,7 +42,12 @@ const Select: React.FC = () => {
 
 
   return (
-    <div className="select-container">
+    <div
+      ref={containerRef}
+      className="select-container"
+      aria-haspopup={true}
+      aria-expanded={false}
+    >
       <label htmlFor="input-1">Input 1</label>
       <div className="input-container" onBlur={(e) => setIsOpen(() => false)}>
         <input
@@ -51,7 +58,7 @@ const Select: React.FC = () => {
           onFocus={(e) => setIsOpen(() => true)}
           value={searchValue ? searchValue : ''}
           onChange={(e) => {
-           const val = e.target.value.trim()
+           const val = escapeRegExp(e.target.value.trim())
            const v = e.target.value.trimStart();
             setSearchValue(prev => v)
             if (val) {
@@ -84,14 +91,17 @@ const Select: React.FC = () => {
             if (e.key === 'ArrowDown') {
               e.preventDefault()
               if(isOpen) {
-                myRef.current.children[currentFocus].focus()
-                myRef.current.children[currentFocus].scrollIntoView()
+                const el =  myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
+
+                el.focus()
+                el.scrollIntoView()
               }
               setIsOpen(prev => {
                 if(prev){
+                  const el =  myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
                   setTimeout(() => {
-                    myRef.current.children[currentFocus].focus()
-                    myRef.current.children[currentFocus].scrollIntoView()
+                   el.focus()
+                    el.scrollIntoView()
                   }, 0)
                   return prev
                 }
@@ -128,6 +138,7 @@ const Select: React.FC = () => {
         <ul
           ref={myRef}
           className={`dropdown ${isOpen ? 'show-dropdown' : ''}`}
+          role={'menu'}
           onKeyPress={(e) => {
             e.stopPropagation()
             e.preventDefault()
@@ -140,35 +151,51 @@ const Select: React.FC = () => {
             e.stopPropagation()
             if (e.key === 'ArrowDown') {
               e.preventDefault()
+              
               if (
-              currentFocus === myRef.current.children.length - 1) {
+              myRef.current.children.length === 0 || currentFocus === myRef.current.children.length - 1) {
                setTimeout(() => {
                 myRef.current.children[0].focus()
                 myRef.current.children[0].scrollIntoView()
-               }, 0)
                 setCurrentFocus(prev => 0)
+               }, 0)
               } else {
                 setTimeout(() => {
-                  myRef.current.children[currentFocus + 1].focus()
-                  myRef.current.children[currentFocus + 1].scrollIntoView()
-                 }, 0)
-                setCurrentFocus( prev => prev + 1)
+                  // TODO: check length of myRef.current.children first
+                  if(myRef.current.children.length <= currentFocus) {
+                    myRef.current.children[0].focus()
+                    myRef.current.children[0].scrollIntoView()
+                    setCurrentFocus( prev => 0)
+                  } else {
+                    myRef.current.children[currentFocus + 1].focus()
+                    myRef.current.children[currentFocus + 1].scrollIntoView()
+                    setCurrentFocus( prev => prev + 1)
+                  }
+                }, 0)
               }
             } else if (e.key === 'ArrowUp') {
               e.preventDefault()
+              
               if (
-              currentFocus === 0) {
-                setTimeout(() => {   
-                  myRef.current.children[myRef.current.children.length - 1].focus()
-                  myRef.current.children[myRef.current.children.length - 1].scrollIntoView()
-                 }, 0)
-                setCurrentFocus(prev =>  myRef.current.children.length - 1)
-              } else {
-                setTimeout(() => {
-                  myRef.current.children[currentFocus - 1].focus()
-                  myRef.current.children[currentFocus - 1].scrollIntoView()
-                 }, 0)
-                setCurrentFocus( prev => prev - 1)    
+                currentFocus === 0 && myRef.current.children.length > 0) {
+                  setTimeout(() => {   
+                    // TODO: check length of myRef.current.children first
+                    myRef.current.children[myRef.current.children.length - 1].focus()
+                    myRef.current.children[myRef.current.children.length - 1].scrollIntoView()
+                    setCurrentFocus(prev =>  myRef.current.children.length - 1)
+                  }, 0)
+                } else if (currentFocus !== 0 && myRef.current.children.length > 0){
+                  setTimeout(() => {
+                    if(myRef.current.children.length <= currentFocus) {
+                      myRef.current.children[0].focus()
+                      myRef.current.children[0].scrollIntoView()
+                      setCurrentFocus( prev => 0)
+                    } else {
+                      myRef.current.children[currentFocus - 1].focus()
+                      myRef.current.children[currentFocus - 1].scrollIntoView()
+                      setCurrentFocus( prev => prev - 1)
+                    }
+                 }, 0)  
               }
             }
           }}
@@ -181,6 +208,8 @@ const Select: React.FC = () => {
                className="dropdownItem" 
                data-value={item.value}
                tabIndex={-1}
+               role={'menuitemcheckbox'}
+               aria-checked={'false'}
               >
                 {item.label}
               </li>

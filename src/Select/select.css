@@ -60,7 +60,8 @@ li.dropdownItem {
   padding: 2px 5px;
 }
 
-li.dropdownItem:focus {
+li.dropdownItem:focus,
+li.dropdownItem:hover {
   background-color: rgb(43, 87, 231);
   color: whitesmoke;
   box-shadow: inset 0px 0px 0px 1px rgb(43, 87, 231);
