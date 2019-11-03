@@ -123,4 +123,6 @@ li.dropdownItem:hover svg {
     padding-right: 4px;
     box-sizing: border-box;
     border-radius: 2px;
+    border: 0px;
+    margin-left: 2px;
 }

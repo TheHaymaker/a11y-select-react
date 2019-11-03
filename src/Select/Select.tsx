@@ -102,10 +102,12 @@ const Select: React.FC = () => {
           {
             Array.from(selected.entries()).map((item: any) => {
               if(item[1]) {
+                const option = JSON.parse(item[0])
                 return (
-                  <div className="multiValue">
-                    <div className="multiValue--inner">{JSON.parse(item[0]).label}</div>
+                  <div key={option.value} className="multiValue">
+                    <div className="multiValue--inner">{option.label}</div>
                     <button
+                      aria-label='Remove selected item'
                       className="multiValue--close"
                       onClick={() => {
                         const key = item[0];
@@ -198,6 +200,7 @@ const Select: React.FC = () => {
           />
         </div>
         <button 
+          aria-label={`Toggle dropdown ${isOpen ? 'closed' : 'open'}`}
           className={`drop-btn ${isOpen ? 'rotate' : ''}`}  
           tabIndex={-1}
           onClick={(e) => {
