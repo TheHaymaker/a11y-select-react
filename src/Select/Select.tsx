@@ -82,6 +82,7 @@ const Select: React.FC = () => {
       // if it isn't managing focus
       // close the dropdown
       setIsOpen(false)
+      containerRef.current.setAttribute('aria-expanded', false)
     }
 
   }, [isManagingFocus])
@@ -102,7 +103,22 @@ const Select: React.FC = () => {
             Array.from(selected.entries()).map((item: any) => {
               if(item[1]) {
                 return (
-                  <div>item[1]</div>
+                  <div className="multiValue">
+                    <div className="multiValue--inner">{JSON.parse(item[0]).label}</div>
+                    <button
+                      className="multiValue--close"
+                      onClick={() => {
+                        const key = item[0];
+                        setSelected(prev => {
+                          const next = new Map(prev)
+                          next.set( key, !next.get(key))
+                          return next
+                        })
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="bevel"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                  </div>
                 )
               }
               return null
@@ -182,7 +198,7 @@ const Select: React.FC = () => {
           />
         </div>
         <button 
-          className="drop-btn"  
+          className={`drop-btn ${isOpen ? 'rotate' : ''}`}  
           tabIndex={-1}
           onClick={(e) => {
             e.stopPropagation()

@@ -28,11 +28,23 @@
   box-shadow: inset 0px 0px 0px 1px rgb(43, 87, 231);
 }
 
+.input-flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 button.drop-btn {
   background-color: inherit;
   border: 0px solid transparent;
   display: flex;
   outline: 0px;
+  transition: 0.25s transform ease-in-out;
+  transform: rotate(0deg);
+}
+
+button.drop-btn.rotate {
+  transform: rotate(180deg);
 }
 
 input.search-input {
@@ -57,7 +69,7 @@ ul.dropdown.show-dropdown {
 
 li.dropdownItem {
   list-style: none;
-  padding: 2px 5px;
+  padding: 3px 8px;
 }
 
 li.dropdownItem:focus,
@@ -81,4 +93,34 @@ li.dropdownItem:hover {
 li.dropdownItem:focus svg,
 li.dropdownItem:hover svg {
   stroke: whitesmoke;
+}
+
+.multiValue {
+  background-color: rgb(230, 230, 230);
+  display: flex;
+  min-width: 0px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  margin: 2px;
+}
+
+.multiValue--inner {
+  color: rgb(51, 51, 51);
+  font-size: 85%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+  border-radius: 2px;
+  overflow: hidden;
+  padding: 3px 3px 3px 6px;
+}
+
+.multiValue--close {
+  -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    padding-left: 4px;
+    padding-right: 4px;
+    box-sizing: border-box;
+    border-radius: 2px;
 }
