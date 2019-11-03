@@ -1,5 +1,7 @@
 # a11y-select-react
 
+![a11y-react-select](a11y-react-select.gif)
+
 ## Intention
 
 - Inspired by [react-select](https://github.com/JedWatson/react-select) - a really awesome project that - at the time of this writing - breaks when using a screen reader such as JAWS and NVDA (specifically in an Electron application). 

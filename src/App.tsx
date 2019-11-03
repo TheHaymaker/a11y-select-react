@@ -7,8 +7,6 @@ import {Select} from "./Select"
 const App: React.FC = (): React.ReactElement => (
   <div>
     <Select />
-    <br/>
-    <button>something else</button>
   </div>
 )
 
