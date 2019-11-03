@@ -1,14 +1,11 @@
 import * as React from 'react'
 import { escapeRegExp } from '../utils'
 
-
-
 const Select: React.FC = () => {
   let _timeoutID: any;
   const [isManagingFocus, setIsManagingFocus] = React.useState(false)
     
     const _onBlur = () => {
-      console.log('Blur Fired')
       // since the blue event emits first
       // we push the state update to the next
       // 'tick' on the event loop
@@ -16,16 +13,13 @@ const Select: React.FC = () => {
       _timeoutID = setTimeout(() => {
         if (isManagingFocus) {
           setIsManagingFocus(() => false);
-          console.log('State set inside Timeout!')
         }
       }, 0);
     }
     
     const _onFocus = () => {
-      console.log('Focus happened')
-
       // Since the focus event is emitted
-      // directly after the blur event,
+      // at the same time as the blur event,
       // and they both bubble up in react,
       // we can cancel the state change
       // that takes place inside of the
@@ -37,7 +31,6 @@ const Select: React.FC = () => {
       // element on the page
       clearTimeout(_timeoutID);
       if (!isManagingFocus) {
-        console.log('State set inside Focus')
         setIsManagingFocus(() => true)
       }
     }
@@ -69,19 +62,25 @@ const Select: React.FC = () => {
     }
   ]
 
+  // const selectedOptionsMap = React.useRef(new Map())
+  const selectedOptionsMap = new Map()
+  options.map(obj => selectedOptionsMap.set(JSON.stringify(obj), false))
+  const [selected, setSelected] = React.useState(selectedOptionsMap)
+
   const myRef = React.useRef(null as any)
   const searchRef = React.useRef(null as any)
   const containerRef = React.useRef(null as any)
   const [dropdownItems, setDropdownItems] = React.useState(options)
   const [filteredDropdownItems, setFilteredDropdownItems] = React.useState(options as any[])
   const [isOpen, setIsOpen] = React.useState(false)
-  const [selected, setSelected] = React.useState(options.length ? options[0] : {value: 'No options', label: 'No options.'})
   const [currentFocus, setCurrentFocus] = React.useState(0)
   const [searchValue, setSearchValue] = React.useState('')
 
   React.useEffect(() => {
   
     if(!isManagingFocus) {
+      // if it isn't managing focus
+      // close the dropdown
       setIsOpen(false)
     }
 
@@ -96,74 +95,92 @@ const Select: React.FC = () => {
       onBlur={_onBlur}
       onFocus={_onFocus}
     >
-      {console.log(isManagingFocus)}
       <label htmlFor="input-1">Input 1</label>
       <div className="input-container">
-        <input
-          ref={searchRef}
-          className="search-input"
-          id={'input-1'}  
-          type="text"
-          onFocus={(e) => setIsOpen(() => { 
-            const wrapper = containerRef.current;
-            wrapper.setAttribute('aria-expanded', true)
-            return true 
-          })}
-          value={searchValue ? searchValue : ''}
-          onChange={(e) => {
-           const val = escapeRegExp(e.target.value.trim())
-           const v = e.target.value.trimStart();
-            setSearchValue(prev => v)
-            if (val) {
-              let filteredItems = dropdownItems.map((item: {
-                label: string
-                value: string
-              }) =>  {
-
-                if (new RegExp(val).test(`${item.label}`)) {
-                  return item
-                } else {
-                  return null;
-                }
-              }).filter(item => item ? item : false)
-
-              filteredItems = filteredItems.length ? filteredItems : [
-                {
-                   label: 'No Options',
-                   value: ''
-                }
-              ]
-
-              setFilteredDropdownItems(() => filteredItems)
-            } else {
-              setFilteredDropdownItems(() => dropdownItems)
-            }
-          }}      
-          onKeyDown={(e) => {
-            e.stopPropagation()
-            if (e.key === 'ArrowDown') {
-              e.preventDefault()
-              if(isOpen) {
-                const el =  myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
-
-                el.focus()
-                el.scrollIntoView()
+        <div className="input-flex">
+          {
+            Array.from(selected.entries()).map((item: any) => {
+              if(item[1]) {
+                return (
+                  <div>item[1]</div>
+                )
               }
-              setIsOpen(prev => { 
-                const wrapper = containerRef.current;
-                if(prev){
-                  const el =  myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
+              return null
+            })
+          }
+          {
+            // Wrap the below div in another div
+            // contrained to a few pixels width
+            // positioned relatively
+            // Then...
+            // position the input inside absolutely
+            // see react-select library
+          }
+          <input
+            ref={searchRef}
+            className="search-input"
+            id={'input-1'}  
+            type="text"
+            onFocus={(e) => setIsOpen(() => { 
+              const wrapper = containerRef.current;
+              wrapper.setAttribute('aria-expanded', true)
+              return true 
+            })}
+            value={searchValue ? searchValue : ''}
+            onChange={(e) => {
+              const val = escapeRegExp(e.target.value.trim())
+              const v = e.target.value.trimStart();
+              setSearchValue(prev => v)
+              if (val) {
+                let filteredItems = dropdownItems.map((item: {
+                  label: string
+                  value: string
+                }) =>  {
 
-                  setTimeout(() => {
-                   el.focus()
-                    el.scrollIntoView()
-                  }, 0)
-                  return prev
+                  if (new RegExp(val).test(`${item.label}`)) {
+                    return item
+                  } else {
+                    return null;
+                  }
+                }).filter(item => item ? item : false)
+
+                filteredItems = filteredItems.length ? filteredItems : [
+                  {
+                    label: 'No Options',
+                    value: ''
+                  }
+                ]
+
+                setFilteredDropdownItems(() => filteredItems)
+              } else {
+                setFilteredDropdownItems(() => dropdownItems)
+              }
+            }}      
+            onKeyDown={(e) => {
+              e.stopPropagation()
+              if (e.key === 'ArrowDown') {
+                e.preventDefault()
+                if (isOpen) {
+                  const el =  myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
+                  el.focus()
+                  el.scrollIntoView()
                 }
-                return !prev
-              })
-            }}}
-        />
+                setIsOpen(prev => { 
+                  if(prev){
+                    const el = myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
+
+                    setTimeout(() => {
+                    el.focus()
+                      el.scrollIntoView()
+                    }, 0)
+                    return prev
+                  }
+                  return !prev
+                })
+              }}
+            }
+          />
+        </div>
         <button 
           className="drop-btn"  
           tabIndex={-1}
@@ -262,9 +279,36 @@ const Select: React.FC = () => {
                data-value={item.value}
                tabIndex={-1}
                role={'menuitemcheckbox'}
-               aria-checked={'false'}
+               aria-checked={selected.get(JSON.stringify(item))}
+               onClick={(e: React.MouseEvent) => {
+                const key = JSON.stringify(item)
+                setSelected(prev => {
+                  const next = new Map(prev)
+                  next.set( key, !next.get(key))
+                  return next
+                })
+               }}
+               onKeyPress={(e: React.KeyboardEvent) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  const key = JSON.stringify(item)
+                  setSelected(prev => {
+                    const next = new Map(prev)
+                    next.set( key, !next.get(key))
+                    return next
+                  })
+                }
+               }}
               >
-                {item.label}
+                {selected.get(JSON.stringify(item))
+                  ? (<svg xmlns="http://www.w3.org/2000/svg" width="31" height="31" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="bevel"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>)
+                  : (<svg xmlns="http://www.w3.org/2000/svg" width="31" height="31" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="bevel"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>)}
+                  {' '}
+                  <span style={{
+                    pointerEvents: 'none',
+                    cursor: 'none'
+                  }}>
+                  {item.label}
+                  </span>
               </li>
               )
           )

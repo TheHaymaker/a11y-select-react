@@ -66,3 +66,19 @@ li.dropdownItem:hover {
   color: whitesmoke;
   box-shadow: inset 0px 0px 0px 1px rgb(43, 87, 231);
 }
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+}
+
+.dropdownItem svg
+{
+  width: 20px;
+  padding-right: 5px;
+}
+
+li.dropdownItem:focus svg,
+li.dropdownItem:hover svg {
+  stroke: whitesmoke;
+}
