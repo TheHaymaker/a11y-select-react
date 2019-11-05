@@ -1,6 +1,6 @@
 # a11y-select-react
 
-![a11y-react-select](a11y-react-select.gif)
+![a11y-react-select](a11y-react-select-multi.gif)
 
 ## Intention
 

@@ -2,8 +2,9 @@ import * as React from 'react'
 import { escapeRegExp } from '../utils'
 
 const Select: React.FC<{
-  type: 'single' | 'multi'
-}> = ({type}) => {
+  type: 'single' | 'multi';
+  label: string;
+}> = ({type, label}) => {
   let _timeoutID: any;
   const [isManagingFocus, setIsManagingFocus] = React.useState(false)
     
@@ -98,7 +99,7 @@ const Select: React.FC<{
       onBlur={_onBlur}
       onFocus={_onFocus}
     >
-      <label htmlFor="input-1">Input 1</label>
+      <label htmlFor="input-1">{label}</label>
       <div 
         className="input-container" 
         onClick={() => {
