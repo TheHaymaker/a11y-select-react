@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { escapeRegExp } from '../utils'
 
-const Select: React.FC = () => {
+const Select: React.FC<{
+  type: 'single' | 'multi'
+}> = ({type}) => {
   let _timeoutID: any;
   const [isManagingFocus, setIsManagingFocus] = React.useState(false)
     
@@ -97,18 +99,131 @@ const Select: React.FC = () => {
       onFocus={_onFocus}
     >
       <label htmlFor="input-1">Input 1</label>
-      <div className="input-container">
-        <div className="input-flex">
-          {
+      <div 
+        className="input-container" 
+        onClick={() => {
+         searchRef.current.focus()
+        }}
+        onMouseDown={(e) => {
+         e.preventDefault()
+        }}
+        onMouseUp={(e) => {
+          e.preventDefault()
+         
+        }}
+        onBlur={() => {}}
+        onFocus={() => {}}
+      >
+        {
+          type === 'multi'
+          ? (
+            <div className="input-flex">
+              {
+                Array.from(selected.entries()).map((item: any) => {
+                  if(item[1]) {
+                    const option = JSON.parse(item[0])
+                    return (
+                      <div key={option.value} className="multiValue">
+                        <div className="multiValue--inner">{option.label}</div>
+                        <button
+                          aria-label='Remove selected item'
+                          className="multiValue--close"
+                          onClick={() => {
+                            const key = item[0];
+                            setSelected(prev => {
+                              const next = new Map(prev)
+                              next.set( key, !next.get(key))
+                              return next
+                            })
+                            searchRef.current.focus()
+                          }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="bevel"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                      </div>
+                    )
+                  }
+                  return null
+                })
+              }
+              <input
+                ref={searchRef}
+                className="search-input"
+                id={'input-1'}  
+                type="text"
+                onFocus={(e) => setIsOpen(() => { 
+                  const wrapper = containerRef.current;
+                  wrapper.setAttribute('aria-expanded', true)
+                  return true 
+                })}
+                value={searchValue ? searchValue : ''}
+                onChange={(e) => {
+                  const val = escapeRegExp(e.target.value.trim())
+                  const v = e.target.value.trimStart();
+                  setSearchValue(prev => v)
+                  if (val) {
+                    let filteredItems = dropdownItems.map((item: {
+                      label: string
+                      value: string
+                    }) =>  {
+    
+                      if (new RegExp(val).test(`${item.label}`)) {
+                        return item
+                      } else {
+                        return null;
+                      }
+                    }).filter(item => item ? item : false)
+    
+                    filteredItems = filteredItems.length ? filteredItems : [
+                      {
+                        label: 'No Options',
+                        value: ''
+                      }
+                    ]
+    
+                    setFilteredDropdownItems(() => filteredItems)
+                  } else {
+                    setFilteredDropdownItems(() => dropdownItems)
+                  }
+                }}      
+                onKeyDown={(e) => {
+                  e.stopPropagation()
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault()
+                    if (isOpen) {
+                      const el =  myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
+                      el.focus()
+                      el.scrollIntoView()
+                    }
+                    setIsOpen(prev => { 
+                      if(prev){
+                        const el = myRef.current.children[currentFocus] ? myRef.current.children[currentFocus] : myRef.current.children[0]
+    
+                        setTimeout(() => {
+                        el.focus()
+                          el.scrollIntoView()
+                        }, 0)
+                        return prev
+                      }
+                      return !prev
+                    })
+                  }}
+                }
+              />
+            </div>
+          )
+          : (
+            <div className="input-flex">
+              {
             Array.from(selected.entries()).map((item: any) => {
               if(item[1]) {
                 const option = JSON.parse(item[0])
                 return (
-                  <div key={option.value} className="multiValue">
-                    <div className="multiValue--inner">{option.label}</div>
+                  <div key={option.value} className="singleValue">
+                    <div className="singleValue--inner">{option.label}</div>
                     <button
                       aria-label='Remove selected item'
-                      className="multiValue--close"
+                      className="singleValue--close"
                       onClick={() => {
                         const key = item[0];
                         setSelected(prev => {
@@ -125,14 +240,6 @@ const Select: React.FC = () => {
               }
               return null
             })
-          }
-          {
-            // Wrap the below div in another div
-            // contrained to a few pixels width
-            // positioned relatively
-            // Then...
-            // position the input inside absolutely
-            // see react-select library
           }
           <input
             ref={searchRef}
@@ -198,7 +305,9 @@ const Select: React.FC = () => {
               }}
             }
           />
-        </div>
+          </div>
+          )
+            }
         <button 
           aria-label={`Toggle dropdown ${isOpen ? 'closed' : 'open'}`}
           className={`drop-btn ${isOpen ? 'rotate' : ''}`}  

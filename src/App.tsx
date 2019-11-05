@@ -6,7 +6,7 @@ import {Select} from "./Select"
 
 const App: React.FC = (): React.ReactElement => (
   <div>
-    <Select />
+    <Select type="multi" />
   </div>
 )
 

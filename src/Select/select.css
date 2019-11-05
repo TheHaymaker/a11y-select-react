@@ -21,6 +21,9 @@
   display: flex;
   padding: 3px;
   box-shadow: inset 0px 0px 0px 0px black;
+  min-width: 200px;
+  justify-content: space-between;
+  position: relative;
 }
 
 .input-container:focus-within {
@@ -54,6 +57,8 @@ input.search-input {
   padding: 0px 0px 0px 7px;
   border: 0px solid transparent;
   outline: 0px;
+  background: transparent;
+  width: 2px;
 }
 
 ul.dropdown.show-dropdown {
@@ -93,6 +98,24 @@ li.dropdownItem:hover {
 li.dropdownItem:focus svg,
 li.dropdownItem:hover svg {
   stroke: whitesmoke;
+}
+
+.singleValue {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  transform: translate(0, -50%);
+  display: flex;
+  width: calc(100% - 50px);
+  justify-content: space-between;
+}
+
+button.singleValue--close {
+  background-color: transparent;
+  border: none;
+  display: flex;
+  cursor: pointer;
+  opacity: 0.5;
 }
 
 .multiValue {
