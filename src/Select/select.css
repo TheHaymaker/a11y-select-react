@@ -59,9 +59,16 @@ button.drop-btn {
   transform: rotate(0deg);
 }
 
-button.drop-btn.rotate {
+button.drop-btn svg {
+  transition: 0.25s transform ease-in-out;
+  transform: rotate(0deg);
+  transform-origin: 50%;
+}
+
+button.drop-btn.rotate svg {
   transform: rotate(180deg);
 }
+
 
 input.search-input {
   line-height: 27px;
@@ -80,23 +87,36 @@ ul.dropdown.show-dropdown {
   margin: 0;
   border-radius: 3px;
   margin-top: 2px;
-  max-height: 100px;
+  max-height: 200px;
   overflow: auto;
   padding: 3px;
 }
 
 li.dropdownItem {
   list-style: none;
-  padding: 3px 8px;
 }
 
 li.dropdownItem:focus,
-li.dropdownItem:hover {
+li.dropdownItem:hover,
+li.dropdownItem:focus button[aria-pressed="false"],
+li.dropdownItem:hover button[aria-pressed="true"],
+li.dropdownItem button:focus {
   background-color: rgb(43, 87, 231);
   color: whitesmoke;
   box-shadow: inset 0px 0px 0px 1px rgb(43, 87, 231);
 }
 
+li.dropdownItem button[aria-pressed="true"]
+ {
+  background-color: rgb(95, 132, 252);
+  color: whitesmoke;
+  box-shadow: inset 0px 0px 0px 1px rgb(43, 87, 231);
+}
+
+li.dropdownItem button[aria-pressed="true"] svg
+ {
+  stroke: whitesmoke;
+}
 .dropdownItem {
   display: flex;
   align-items: center;
@@ -106,6 +126,21 @@ li.dropdownItem:hover {
 {
   width: 20px;
   padding-right: 5px;
+}
+
+li.dropdownItem button {
+  padding: 3px 8px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  color: #000;
+  background-color: transparent;
+  border: none;
+  margin: 0px;
+}
+li.dropdownItem:focus button,
+li.dropdownItem:hover button {
+  color: whitesmoke;
 }
 
 li.dropdownItem:focus svg,

@@ -1,2 +1,2 @@
-import './select.css'
-export {Select} from './Select'
+import "./select.css"
+export { Select } from "./Select"

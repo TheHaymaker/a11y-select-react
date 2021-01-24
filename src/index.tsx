@@ -4,12 +4,6 @@ import './index.css'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
 
-type Axe = (
-  react: typeof React,
-  reactDOM: typeof ReactDOM,
-  timeout: number
-) => void
-
 ReactDOM.render(<App />, document.getElementById('root'))
 
 if (process.env.NODE_ENV !== 'production') {
