@@ -1,5 +1,7 @@
 # a11y-select-react
 
+Check out [the deployed sample](https://thehaymaker.github.io/a11y-select-react/) here.
+
 ![a11y-react-select](a11y-react-select-multi.gif)
 
 ## Intention
