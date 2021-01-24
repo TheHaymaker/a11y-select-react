@@ -360,27 +360,34 @@ const Select: React.FC<{
                   e.preventDefault()
                   if (isOpen) {
                     if(myRef.current) {
-                      const parent: HTMLElement = myRef.current
-                      const childEls: HTMLCollection = parent.children
-                      const el = childEls[currentFocus]
-                        ? myRef.current.children[currentFocus] as HTMLElement
-                        : myRef.current.children[0] as HTMLElement
-                      el.focus()
-                      el.scrollIntoView(SCROLL_OPTIONS)
+                      const childrenArr = (myRef.current.children as HTMLCollection)
+                      if(childrenArr[currentFocus]){
+                        const listItemParent = (childrenArr[currentFocus] as HTMLElement)
+                        const btn = (listItemParent.children[0] as HTMLButtonElement)
+                        
+                        btn.focus()
+                        btn.scrollIntoView(SCROLL_OPTIONS)
+                      } else if(childrenArr[0]){
+                        const listItemParent = (childrenArr[0] as HTMLElement)
+                        const btn = (listItemParent.children[0] as HTMLButtonElement)
+                        
+                        btn.focus()
+                        btn.scrollIntoView(SCROLL_OPTIONS)
+                      }
                     }
                   }
                   setIsOpen((prev): boolean => {
                     if (prev) {
                       if(myRef.current) {
-                        const parent: HTMLElement = myRef.current
-                        const childEls: HTMLCollection = parent.children
-                        const el = childEls[currentFocus]
-                          ? myRef.current.children[currentFocus] as HTMLElement
-                          : myRef.current.children[0] as HTMLElement
-                        setTimeout((): void => {
-                          el.focus()
-                          el.scrollIntoView(SCROLL_OPTIONS)
-                        }, 0)
+                        const childrenArr = (myRef.current.children as HTMLCollection)
+                        if(childrenArr[currentFocus]){
+                          const listItemParent = (childrenArr[currentFocus] as HTMLElement)
+                          const btn = (listItemParent.children[0] as HTMLButtonElement)
+                          setTimeout((): void => {
+                            btn.focus()
+                            btn.scrollIntoView(SCROLL_OPTIONS)
+                          }, 0)
+                        }
                       }
                       return prev
                     }
@@ -553,21 +560,56 @@ const Select: React.FC<{
                   aria-pressed={selected.get(JSON.stringify(item))}
                   onClick={(e: React.MouseEvent): void => {
                     const key = JSON.stringify(item)
-                    setSelected((prev): Map<string, number> => {
-                      const next = new Map(prev)
-                      next.set(key, !next.get(key))
-                      return next
-                    })
-                  }}
-                  onKeyPress={(e: React.KeyboardEvent): void => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      const key = JSON.stringify(item)
+
+                    if(type === 'multi') {
                       setSelected((prev): Map<string, number> => {
                         const next = new Map(prev)
                         next.set(key, !next.get(key))
                         return next
                       })
+                    } else {
+                      const itemInQuestion = JSON.stringify(item)
+                      setSelected((prev): Map<string, number> => {
+                        const newSelected = new Map()
+                        Array.from(prev).forEach(([key, value]) => {
+                          if(itemInQuestion === key) {
+                            newSelected.set(key, true)
+                          } else {
+                            newSelected.set(key, false)
+                          }
+                        })
+                        // return next
+                        return newSelected
+                      })
                     }
+                  }}
+                  onKeyUp={(e: React.KeyboardEvent): void => {
+                    const key = JSON.stringify(item)
+
+                    if (e.key === "Enter" || e.key === " ") {
+                      if(type === 'multi') {
+                        setSelected((prev): Map<string, number> => {
+                          const next = new Map(prev)
+                          next.set(key, !next.get(key))
+                          return next
+                        })
+                      } else {
+                        const itemInQuestion = JSON.stringify(item)
+                        setSelected((prev): Map<string, number> => {
+                          const newSelected = new Map()
+                          Array.from(prev).forEach(([key, value]) => {
+                            if(itemInQuestion === key) {
+                              newSelected.set(key, true)
+                            } else {
+                              newSelected.set(key, false)
+                            }
+                          })
+                          // return next
+                          return newSelected
+                        })
+                      }
+                    }
+
                   }}
                 >
 
