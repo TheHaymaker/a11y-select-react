@@ -574,13 +574,13 @@ const Select: React.FC<{
                   {selected.get(JSON.stringify(item)) ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="31"
+                      width="25"
                       height="31"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="#000000"
                       strokeWidth="2"
-                      strokeLinecap="round"
+                      strokeLinecap="square"
                       strokeLinejoin="bevel"
                     >
                       <polyline points="9 11 12 14 22 4"></polyline>
@@ -589,13 +589,13 @@ const Select: React.FC<{
                   ) : (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="31"
+                      width="25"
                       height="31"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="#000000"
                       strokeWidth="2"
-                      strokeLinecap="round"
+                      strokeLinecap="square"
                       strokeLinejoin="bevel"
                     >
                       <rect
