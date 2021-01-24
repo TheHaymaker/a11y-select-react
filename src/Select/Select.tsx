@@ -6,6 +6,8 @@ interface DropdownItem {
   value: string;
 }
 
+const SCROLL_OPTIONS: ScrollIntoViewOptions = {behavior: "smooth", block: "center", inline: "nearest"}
+
 const Select: React.FC<{
   type: "single" | "multi";
   label: string;
@@ -234,7 +236,7 @@ const Select: React.FC<{
                         const btn = (listItemParent.children[0] as HTMLButtonElement)
                         
                         btn.focus()
-                        btn.scrollIntoView()
+                        btn.scrollIntoView(SCROLL_OPTIONS)
                       }
                     }
                     setIsOpen((prev): boolean => {
@@ -247,7 +249,7 @@ const Select: React.FC<{
                             
                             setTimeout((): void => {
                               btn.focus()
-                              btn.scrollIntoView()
+                              btn.scrollIntoView(SCROLL_OPTIONS)
                             }, 0)
                           }
                         }
@@ -364,7 +366,7 @@ const Select: React.FC<{
                         ? myRef.current.children[currentFocus] as HTMLElement
                         : myRef.current.children[0] as HTMLElement
                       el.focus()
-                      el.scrollIntoView()
+                      el.scrollIntoView(SCROLL_OPTIONS)
                     }
                   }
                   setIsOpen((prev): boolean => {
@@ -377,7 +379,7 @@ const Select: React.FC<{
                           : myRef.current.children[0] as HTMLElement
                         setTimeout((): void => {
                           el.focus()
-                          el.scrollIntoView()
+                          el.scrollIntoView(SCROLL_OPTIONS)
                         }, 0)
                       }
                       return prev
@@ -463,7 +465,7 @@ const Select: React.FC<{
                         const listItemParent = (childrenArr[0] as HTMLElement)
                         const btn = (listItemParent.children[0] as HTMLButtonElement)
                         btn.focus()
-                        btn.scrollIntoView()
+                        btn.scrollIntoView(SCROLL_OPTIONS)
                       }
                     }
                     setCurrentFocus((prev): number => 0)
@@ -479,7 +481,7 @@ const Select: React.FC<{
                           const listItemParent = (childrenArr[0] as HTMLElement)
                           const btn = (listItemParent.children[0] as HTMLButtonElement)
                           btn.focus()
-                          btn.scrollIntoView()
+                          btn.scrollIntoView(SCROLL_OPTIONS)
                         }
                         setCurrentFocus((prev): number => 0)
                       } else {
@@ -487,7 +489,7 @@ const Select: React.FC<{
                           const listItemParent = (childrenArr[currentFocus + 1] as HTMLElement)
                           const btn = (listItemParent.children[0] as HTMLButtonElement)
                           btn.focus()
-                          btn.scrollIntoView()
+                          btn.scrollIntoView(SCROLL_OPTIONS)
                         }
                         setCurrentFocus((prev): number => prev + 1)
                       }
@@ -506,7 +508,7 @@ const Select: React.FC<{
                     ] as HTMLElement)
                     const btn = (listItemParent.children[0] as HTMLButtonElement)
                     btn.focus()
-                    btn.scrollIntoView()
+                    btn.scrollIntoView(SCROLL_OPTIONS)
                     setCurrentFocus((prev): number => myRef.current ? myRef.current.children.length - 1 : prev)
                   }
                 }, 0)
@@ -521,13 +523,13 @@ const Select: React.FC<{
                       const listItemParent = (myRef.current.children[0] as HTMLElement)
                       const btn = (listItemParent.children[0] as HTMLButtonElement)
                       btn.focus()
-                      btn.scrollIntoView()
+                      btn.scrollIntoView(SCROLL_OPTIONS)
                       setCurrentFocus((prev): number => 0)
                     } else {
                       const listItemParent = (myRef.current.children[currentFocus - 1] as HTMLElement)
                       const btn = (listItemParent.children[0] as HTMLButtonElement)
                       btn.focus()
-                      btn.scrollIntoView()
+                      btn.scrollIntoView(SCROLL_OPTIONS)
                       setCurrentFocus((prev): number => prev - 1)
                     }
                   }

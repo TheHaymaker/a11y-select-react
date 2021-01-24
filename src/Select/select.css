@@ -60,7 +60,7 @@ button.drop-btn {
 }
 
 button.drop-btn svg {
-  transition: 0.25s transform ease-in-out;
+  /* transition: 0.25s transform ease-in-out; */
   transform: rotate(0deg);
   transform-origin: 50%;
 }
@@ -100,10 +100,12 @@ li.dropdownItem:focus,
 li.dropdownItem:hover,
 li.dropdownItem:focus button[aria-pressed="false"],
 li.dropdownItem:hover button[aria-pressed="true"],
+li.dropdownItem:hover button[aria-pressed="false"],
 li.dropdownItem button:focus {
   background-color: rgb(43, 87, 231);
   color: whitesmoke;
   box-shadow: inset 0px 0px 0px 1px rgb(43, 87, 231);
+  stroke: whitesmoke;
 }
 
 li.dropdownItem button[aria-pressed="true"]
@@ -111,9 +113,26 @@ li.dropdownItem button[aria-pressed="true"]
   background-color: rgb(95, 132, 252);
   color: whitesmoke;
   box-shadow: inset 0px 0px 0px 1px rgb(43, 87, 231);
+  stroke: whitesmoke;
 }
 
-li.dropdownItem button[aria-pressed="true"] svg
+li.dropdownItem button[aria-pressed="false"] svg
+ {
+  stroke: black;
+}
+
+li.dropdownItem button[aria-pressed="true"] svg,
+li.dropdownItem:focus button[aria-pressed="true"] svg
+ {
+  stroke: whitesmoke;
+}
+
+li.dropdownItem:focus,
+li.dropdownItem:hover,
+li.dropdownItem:focus button[aria-pressed="false"] svg,
+li.dropdownItem:hover button[aria-pressed="true"] svg,
+li.dropdownItem:hover button[aria-pressed="false"] svg,
+li.dropdownItem button:focus svg
  {
   stroke: whitesmoke;
 }
