@@ -11,7 +11,11 @@ const SCROLL_OPTIONS: ScrollIntoViewOptions = {behavior: "smooth", block: "cente
 const Select: React.FC<{
   type: "single" | "multi";
   label: string;
-}> = ({ type, label }): React.ReactElement => {
+  selectOptions: DropdownItem[];
+  selection?: DropdownItem[] | [];
+  hasClearAll?: boolean;
+  hasCheckboxes?: boolean;
+}> = ({ type, label, selectOptions, selection = [], hasClearAll = true, hasCheckboxes = true }): React.ReactElement => {
   let _timeoutID: number
   const [isManagingFocus, setIsManagingFocus] = React.useState(false)
 
@@ -46,43 +50,19 @@ const Select: React.FC<{
     return
   }
 
-  const options = [
-    {
-      value: "1",
-      label: "Option 1",
-    },
-    {
-      value: "2",
-      label: "Option 2",
-    },
-    {
-      value: "3",
-      label: "Option 3",
-    },
-    {
-      value: "4",
-      label: "Option 4",
-    },
-    {
-      value: "5",
-      label: "Option 5",
-    },
-    {
-      value: "6",
-      label: "Option 6",
-    },
-  ]
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [dropdownItems, setDropdownItems] = React.useState(selectOptions)
+  const [filteredDropdownItems, setFilteredDropdownItems] = React.useState(
+    selectOptions as DropdownItem[]
+  )
+  const [selected, setSelected] = React.useState(selection)
 
-  // const selectedOptionsMap = React.useRef(new Map())
-  const selectedOptionsMap = new Map()
-  options.forEach((obj): Map<string, string> => selectedOptionsMap.set(JSON.stringify(obj), false))
-  const [selected, setSelected] = React.useState(selectedOptionsMap)
-  const starterRef: any[] = []
-  const [selectedRefs, setSelectedRefs] = React.useState(starterRef)
+ 
+  const [selectedRefs, setSelectedRefs] = React.useState<React.MutableRefObject<HTMLDivElement|null>[]>([])
   const multiInFocus = React.useRef(-9999)
 
   React.useEffect(() => {
-    const refs: any[] = []
+    const refs: React.MutableRefObject<HTMLDivElement|null>[] = []
     Array.from(selected.entries()).forEach((item) => {
       refs.push(React.createRef())
     })
@@ -94,11 +74,6 @@ const Select: React.FC<{
   const myRef: React.MutableRefObject<HTMLUListElement | null> = React.useRef(null)
   const searchRef: React.MutableRefObject<HTMLInputElement | null> = React.useRef(null)
   const containerRef: React.MutableRefObject<HTMLDivElement | null> = React.useRef(null)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [dropdownItems, setDropdownItems] = React.useState(options)
-  const [filteredDropdownItems, setFilteredDropdownItems] = React.useState(
-    options as DropdownItem[]
-  )
   const [isOpen, setIsOpen] = React.useState(false)
   const [currentFocus, setCurrentFocus] = React.useState(0)
   const [searchValue, setSearchValue] = React.useState("")
@@ -118,15 +93,15 @@ const Select: React.FC<{
   const handleKeyDownCapture = React.useCallback((e) => {
     if(e.key === 'ArrowLeft' && !searchValue) {
       const mySelections = selectedRefs.filter(item => item.current !== null)
-      console.log(selectedRefs)
-      console.log(mySelections)
       if(mySelections.length > 0) {
         if(multiInFocus.current === 0) {
           return
         } else {
-          multiInFocus.current = multiInFocus.current !== -9999 ? multiInFocus.current - 1 : mySelections.length - 1
-          const btn = mySelections[multiInFocus.current].current.querySelector('button')
-          btn.focus()
+          if(multiInFocus.current !== null) {
+            multiInFocus.current = multiInFocus.current !== -9999 ? multiInFocus.current - 1 : mySelections.length - 1
+            const btn = mySelections[multiInFocus.current].current?.querySelector('button')
+            btn?.focus()
+          }
         }
       }
     } else if(e.key === 'ArrowRight' && !searchValue) {
@@ -142,8 +117,8 @@ const Select: React.FC<{
           return
         } else {
           multiInFocus.current = multiInFocus.current !== -9999 ? multiInFocus.current + 1 : mySelections.length - 1
-          const btn = mySelections[multiInFocus.current].current.querySelector('button')
-          btn.focus()
+          const btn = mySelections[multiInFocus.current].current?.querySelector('button')
+          btn?.focus()
         }
       }
     }
@@ -202,60 +177,62 @@ const Select: React.FC<{
       >
         {type === "multi" ? (
           <div className="input-flex">
-            {Array.from(selected.entries()).map((item: [string, string], index): React.ReactNode => {
-              if (item[1]) {
-                const option = JSON.parse(item[0])
-                return (
-                  <div 
-                    ref={selectedRefs[index]} 
-                    key={option.value}
-                    className="multiValue"
+            {selected.length !== 0 && selected.map((item, index): React.ReactNode => (
+              <div 
+                ref={selectedRefs[index]} 
+                key={item.value}
+                className="multiValue"
+              >
+                <div className="multiValue--inner">{item.label}</div>
+                <button
+                  tabIndex={-1}
+                  aria-label="Remove selected item"
+                  className="multiValue--close"
+                  onClick={(): void => {
+                    setSelected(prev => {
+                      const newArr = [...prev]
+                      const isChosen = newArr.findIndex(el => el.value === item.value && el.label === item.label)
+                      if(isChosen !== -1) {
+                        // if prev contains the item - remove it
+                        newArr.splice(isChosen, 1)
+                        return newArr
+                      } else {
+                        // else add it
+                        newArr.push(item)
+                        return newArr
+                      }
+
+                    })
+                    if(searchRef.current) {
+                      searchRef.current.focus()
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#000000"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="bevel"
                   >
-                    <div className="multiValue--inner">{option.label}</div>
-                    <button
-                      tabIndex={-1}
-                      aria-label="Remove selected item"
-                      className="multiValue--close"
-                      onClick={(): void => {
-                        const key = item[0]
-                        setSelected((prev): Map<string,string> => {
-                          const next = new Map(prev)
-                          next.set(key, !next.get(key))
-                          return next
-                        })
-                        if(searchRef.current) {
-                          searchRef.current.focus()
-                        }
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#000000"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="bevel"
-                      >
-                        <line x1="18"
-                          y1="6"
-                          x2="6"
-                          y2="18"
-                        ></line>
-                        <line x1="6"
-                          y1="6"
-                          x2="18"
-                          y2="18"
-                        ></line>
-                      </svg>
-                    </button>
-                  </div>
-                )
-              }
-              return null
-            })}
+                    <line x1="18"
+                      y1="6"
+                      x2="6"
+                      y2="18"
+                    ></line>
+                    <line x1="6"
+                      y1="6"
+                      x2="18"
+                      y2="18"
+                    ></line>
+                  </svg>
+                </button>
+              </div>
+            ))}
             <div className="input-size-wrapper">
               <input
                 ref={searchRef}
@@ -363,25 +340,17 @@ const Select: React.FC<{
           </div>
         ) : (
           <div className="input-flex">
-            {Array.from(selected.entries()).map((item: [string, string]): React.ReactNode => {
-              if (item[1]) {
-                const option = JSON.parse(item[0])
-                return (
-                  <div key={option.value}
-                    className="singleValue"
-                  >
-                    <div className="singleValue--inner">{option.label}</div>
+            {selected.length !== 0 && selected.map((item, index): React.ReactNode => (
+              <div key={item.value}
+                className="singleValue"
+              >
+                <div className="singleValue--inner">{item.label}</div>
+                {hasClearAll && 
                     <button
+                      tabIndex={-1}
                       aria-label="Remove selected item"
                       className="singleValue--close"
-                      onClick={() => {
-                        const key = item[0]
-                        setSelected((prev) => {
-                          const next = new Map(prev)
-                          next.set(key, !next.get(key))
-                          return next
-                        })
-                      }}
+                      onClick={() => setSelected(() => [])}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -405,12 +374,9 @@ const Select: React.FC<{
                           y2="18"
                         ></line>
                       </svg>
-                    </button>
-                  </div>
-                )
-              }
-              return null
-            })}
+                    </button>}
+              </div>
+            ))}
             <input
               ref={searchRef}
               className="search-input"
@@ -655,63 +621,53 @@ const Select: React.FC<{
                   data-value={item.value}
                   tabIndex={-1}
                   aria-label={"menuitemcheckbox"}
-                  aria-pressed={selected.get(JSON.stringify(item))}
+                  aria-pressed={selected.findIndex(el => el.label === item.label && el.value === item.value) !== -1}
                   onClick={(e: React.MouseEvent): void => {
-                    const key = JSON.stringify(item)
 
                     if(type === 'multi') {
-                      setSelected((prev): Map<string, number> => {
-                        const next = new Map(prev)
-                        next.set(key, !next.get(key))
-                        return next
+                      setSelected(prev => {
+                        const newArr = [...prev]
+                        const isChosen = newArr.findIndex(el => el.value === item.value && el.label === item.label)
+                        if(isChosen !== -1) {
+                          // if prev contains the item - remove it
+                          newArr.splice(isChosen, 1)
+                          return newArr
+                        } else {
+                          // else add it
+                          newArr.push(item)
+                          return newArr
+                        }
+  
                       })
                     } else {
-                      const itemInQuestion = JSON.stringify(item)
-                      setSelected((prev): Map<string, number> => {
-                        const newSelected = new Map()
-                        Array.from(prev).forEach(([key, value]) => {
-                          if(itemInQuestion === key) {
-                            newSelected.set(key, true)
-                          } else {
-                            newSelected.set(key, false)
-                          }
-                        })
-                        // return next
-                        return newSelected
-                      })
+                      setSelected(() => [item])
                     }
                   }}
                   onKeyUp={(e: React.KeyboardEvent): void => {
-                    const key = JSON.stringify(item)
-
                     if (e.key === "Enter" || e.key === " ") {
                       if(type === 'multi') {
-                        setSelected((prev): Map<string, number> => {
-                          const next = new Map(prev)
-                          next.set(key, !next.get(key))
-                          return next
+                        setSelected(prev => {
+                          const newArr = [...prev]
+                          const isChosen = newArr.findIndex(el => el.value === item.value && el.label === item.label)
+                          if(isChosen !== -1) {
+                            // if prev contains the item - remove it
+                            newArr.splice(isChosen, 1)
+                            return newArr
+                          } else {
+                            // else add it
+                            newArr.push(item)
+                            return newArr
+                          }
+    
                         })
                       } else {
-                        const itemInQuestion = JSON.stringify(item)
-                        setSelected((prev): Map<string, number> => {
-                          const newSelected = new Map()
-                          Array.from(prev).forEach(([key, value]) => {
-                            if(itemInQuestion === key) {
-                              newSelected.set(key, true)
-                            } else {
-                              newSelected.set(key, false)
-                            }
-                          })
-                          // return next
-                          return newSelected
-                        })
+                        setSelected(() => [item])
                       }
                     }
-
                   }}
                 >
 
-                  {selected.get(JSON.stringify(item)) ? (
+                  {selected.findIndex(el => el.value === item.value && el.label === item.label) !== -1 ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="25"
