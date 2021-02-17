@@ -108,6 +108,7 @@ const Select: React.FC<{
       // if it isn't managing focus
       // close the dropdown
       setIsOpen(false)
+      setSearchValue('')
       if(containerRef.current && containerRef.current !== undefined) {
         containerRef.current.setAttribute("aria-expanded", 'false')
       }
@@ -148,6 +149,15 @@ const Select: React.FC<{
     }
   }, [selectedRefs, searchValue])
 
+  const autoSizeRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if(autoSizeRef.current !== null && searchRef.current) {
+      searchRef.current.style.width = `${autoSizeRef.current.clientWidth + 2}px`
+    }
+
+  }, [searchValue, autoSizeRef])
+
   return (
     <div
       ref={containerRef}
@@ -165,6 +175,20 @@ const Select: React.FC<{
           if(searchRef.current) {
             searchRef.current.focus()
           }
+          setIsOpen((prev): boolean => {
+
+            if(prev) {
+              if(containerRef.current) {
+                containerRef.current.setAttribute("aria-expanded", 'false')
+              }
+              return false
+            } else {
+              if(containerRef.current) {
+                containerRef.current.setAttribute("aria-expanded", 'true')
+              }
+              return true
+            }
+          })
         }}
         onMouseDown={(e) => {
           e.preventDefault()
@@ -232,95 +256,110 @@ const Select: React.FC<{
               }
               return null
             })}
-            <input
-              ref={searchRef}
-              className="search-input"
-              id={"input-1"}
-              type="text"
-              onFocus={(e): void => {
-                multiInFocus.current = -9999
-                setIsOpen((): boolean => {
-                  if(containerRef.current) {
-                    containerRef.current.setAttribute("aria-expanded", 'true')
-                  }
-                  return true
-                })
-              }}
-              value={searchValue ? searchValue : ""}
-              onChange={(e): void => {
-                const val = escapeRegExp(e.target.value.trim())
-                const v = e.target.value.trimStart()
-                setSearchValue((prev): string => v)
-                if (val) {
+            <div className="input-size-wrapper">
+              <input
+                ref={searchRef}
+                className="search-input"
+                id={"input-1"}
+                type="text"
+                onFocus={(e): void => {
+                  multiInFocus.current = -9999
+                }}
+                value={searchValue ? searchValue : ""}
+                onChange={(e): void => {
+                  const val = escapeRegExp(e.target.value.trim())
+                  const v = e.target.value.trimStart()
+                  setSearchValue((prev): string => v)
+                  if (val) {
 
-                  let filteredItems = dropdownItems.reduce((filtered: DropdownItem[], item: DropdownItem) => {
-                    if (new RegExp(val).test(`${item.label}`)) {
-                      filtered.push(item)
+                    setIsOpen(true)
+                    if(containerRef.current && containerRef.current !== undefined) {
+                      containerRef.current.setAttribute("aria-expanded", 'true')
                     }
-                    return filtered
-                  }, [])
 
-
-                  filteredItems = filteredItems.length
-                    ? filteredItems
-                    : [
-                      {
-                        label: "No Options",
-                        value: "",
-                      },
-                    ]
-
-                  setFilteredDropdownItems(() => filteredItems)
-                } else {
-                  setFilteredDropdownItems(() => dropdownItems)
-                }
-              }}
-              onKeyDown={(e): void => {
-                e.stopPropagation()
-                if (e.key === "ArrowDown") {
-                  e.persist()
-                  e.preventDefault()
-                  if (isOpen) {
-                    if(myRef.current) {
-                      const childrenArr = (myRef.current.children as HTMLCollection)
-                      if(childrenArr[currentFocus]){
-                        const listItemParent = (childrenArr[currentFocus] as HTMLElement)
-                        const btn = (listItemParent.children[0] as HTMLButtonElement)
-                        
-                        btn.focus()
-                        btn.scrollIntoView(SCROLL_OPTIONS)
+                    let filteredItems = dropdownItems.reduce((filtered: DropdownItem[], item: DropdownItem) => {
+                      if (new RegExp(val).test(`${item.label}`)) {
+                        filtered.push(item)
                       }
-                    }
-                    setIsOpen((prev): boolean => {
-                      if (prev) {
-                        if(myRef.current) {
-                          const childrenArr = (myRef.current.children as HTMLCollection)
-                          if(childrenArr[currentFocus]){
-                            const listItemParent = (childrenArr[currentFocus] as HTMLElement)
-                            const btn = (listItemParent.children[0] as HTMLButtonElement)
-                            
-                            setTimeout((): void => {
-                              btn.focus()
-                              btn.scrollIntoView(SCROLL_OPTIONS)
-                            }, 0)
-                          }
-                        }
-                       
-                        return prev
-                      }
-                      return !prev
-                    })
+                      return filtered
+                    }, [])
+
+
+                    filteredItems = filteredItems.length
+                      ? filteredItems
+                      : [
+                        {
+                          label: "No Options",
+                          value: "",
+                        },
+                      ]
+
+                    setFilteredDropdownItems(() => filteredItems)
                   } else {
-                    setIsOpen((): boolean => {
-                      if(containerRef.current) {
-                        containerRef.current.setAttribute("aria-expanded", 'true')
+                    setFilteredDropdownItems(() => dropdownItems)
+                  }
+                }}
+                onKeyDown={(e): void => {
+                  e.stopPropagation()
+                  if (e.key === "ArrowDown") {
+                    e.persist()
+                    e.preventDefault()
+                    if (isOpen) {
+                      if(myRef.current) {
+                        const childrenArr = (myRef.current.children as HTMLCollection)
+                        if(childrenArr[currentFocus]){
+                          const listItemParent = (childrenArr[currentFocus] as HTMLElement)
+                          const btn = (listItemParent.children[0] as HTMLButtonElement)
+                        
+                          btn.focus()
+                          btn.scrollIntoView(SCROLL_OPTIONS)
+                        }
                       }
-                      return true
-                    })
+                      setIsOpen((prev): boolean => {
+                        if (prev) {
+                          if(myRef.current) {
+                            const childrenArr = (myRef.current.children as HTMLCollection)
+                            if(childrenArr[currentFocus]){
+                              const listItemParent = (childrenArr[currentFocus] as HTMLElement)
+                              const btn = (listItemParent.children[0] as HTMLButtonElement)
+                            
+                              setTimeout((): void => {
+                                btn.focus()
+                                btn.scrollIntoView(SCROLL_OPTIONS)
+                              }, 0)
+                            }
+                          }
+                       
+                          return prev
+                        }
+                        return !prev
+                      })
+                    } else {
+                      setIsOpen((): boolean => {
+                        if(containerRef.current) {
+                          containerRef.current.setAttribute("aria-expanded", 'true')
+                        }
+                        return true
+                      })
+                    }
+                  }
+                }}
+              />
+              <div ref={autoSizeRef}
+                style={
+                  {
+                    position: "absolute", 
+                    top: 0,
+                    left: 0,
+                    visibility: "hidden",
+                    height: 0, 
+                    overflow: "scroll", 
+                    whiteSpace: "pre",
+                    fontSize: '16px'
                   }
                 }
-              }}
-            />
+              >{searchValue}</div>
+            </div>
           </div>
         ) : (
           <div className="input-flex">
@@ -486,8 +525,8 @@ const Select: React.FC<{
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="31"
-            height="31"
+            width="21"
+            height="21"
             viewBox="0 0 24 24"
             fill="none"
             stroke="#000000"
@@ -676,7 +715,7 @@ const Select: React.FC<{
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="25"
-                      height="31"
+                      height="21"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="#000000"
@@ -691,7 +730,7 @@ const Select: React.FC<{
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="25"
-                      height="31"
+                      height="21"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="#000000"
