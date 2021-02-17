@@ -2,12 +2,6 @@
   box-sizing: border-box;
 }
 
-.select-container {
-  width: max-content;
-  min-width: 200px;
-  max-width: 325px;
-}
-
 .dropdown {
   display: none;
 }

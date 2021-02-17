@@ -3,3 +3,11 @@
   justify-content: center;
   padding-top: 10%;
 }
+
+.my-grid {
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: auto;
+  grid-gap: 100px;
+  width: 321px;
+}

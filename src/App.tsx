@@ -3,13 +3,10 @@ import "./App.css"
 import { Select } from "./Select"
 
 const App: React.FC = (): React.ReactElement => (
-  <div>
+  <div className="my-grid">
     <Select label="Multi Input"
       type="multi"
     />
-    <br />
-    <br />
-    <br />
     <Select label="Single Input"
       type="single"
     />

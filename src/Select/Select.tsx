@@ -77,6 +77,19 @@ const Select: React.FC<{
   const selectedOptionsMap = new Map()
   options.forEach((obj): Map<string, string> => selectedOptionsMap.set(JSON.stringify(obj), false))
   const [selected, setSelected] = React.useState(selectedOptionsMap)
+  const starterRef: any[] = []
+  const [selectedRefs, setSelectedRefs] = React.useState(starterRef)
+  const multiInFocus = React.useRef(-9999)
+
+  React.useEffect(() => {
+    const refs: any[] = []
+    Array.from(selected.entries()).forEach((item) => {
+      refs.push(React.createRef())
+    })
+    setSelectedRefs(refs)
+  }, [selected])
+
+ 
 
   const myRef: React.MutableRefObject<HTMLUListElement | null> = React.useRef(null)
   const searchRef: React.MutableRefObject<HTMLInputElement | null> = React.useRef(null)
@@ -100,6 +113,40 @@ const Select: React.FC<{
       }
     }
   }, [isManagingFocus])
+
+  const handleKeyDownCapture = React.useCallback((e) => {
+    if(e.key === 'ArrowLeft' && !searchValue) {
+      const mySelections = selectedRefs.filter(item => item.current !== null)
+      console.log(selectedRefs)
+      console.log(mySelections)
+      if(mySelections.length > 0) {
+        if(multiInFocus.current === 0) {
+          return
+        } else {
+          multiInFocus.current = multiInFocus.current !== -9999 ? multiInFocus.current - 1 : mySelections.length - 1
+          const btn = mySelections[multiInFocus.current].current.querySelector('button')
+          btn.focus()
+        }
+      }
+    } else if(e.key === 'ArrowRight' && !searchValue) {
+      if(multiInFocus.current === -9999) {
+        return
+      }
+      const mySelections = selectedRefs.filter(item => item.current != null)
+      if(mySelections.length > 0) {
+        if(multiInFocus.current === mySelections.length - 1) {
+          if(searchRef.current) {
+            searchRef.current.focus()
+          }
+          return
+        } else {
+          multiInFocus.current = multiInFocus.current !== -9999 ? multiInFocus.current + 1 : mySelections.length - 1
+          const btn = mySelections[multiInFocus.current].current.querySelector('button')
+          btn.focus()
+        }
+      }
+    }
+  }, [selectedRefs, searchValue])
 
   return (
     <div
@@ -127,18 +174,22 @@ const Select: React.FC<{
         }}
         onBlur={(e) => e}
         onFocus={(e) => e}
+        onKeyDownCapture={handleKeyDownCapture}
       >
         {type === "multi" ? (
           <div className="input-flex">
-            {Array.from(selected.entries()).map((item: [string, string]): React.ReactNode => {
+            {Array.from(selected.entries()).map((item: [string, string], index): React.ReactNode => {
               if (item[1]) {
                 const option = JSON.parse(item[0])
                 return (
-                  <div key={option.value}
+                  <div 
+                    ref={selectedRefs[index]} 
+                    key={option.value}
                     className="multiValue"
                   >
                     <div className="multiValue--inner">{option.label}</div>
                     <button
+                      tabIndex={-1}
                       aria-label="Remove selected item"
                       className="multiValue--close"
                       onClick={(): void => {
@@ -186,13 +237,15 @@ const Select: React.FC<{
               className="search-input"
               id={"input-1"}
               type="text"
-              onFocus={(e): void =>
+              onFocus={(e): void => {
+                multiInFocus.current = -9999
                 setIsOpen((): boolean => {
                   if(containerRef.current) {
                     containerRef.current.setAttribute("aria-expanded", 'true')
                   }
                   return true
-                })}
+                })
+              }}
               value={searchValue ? searchValue : ""}
               onChange={(e): void => {
                 const val = escapeRegExp(e.target.value.trim())
@@ -226,7 +279,6 @@ const Select: React.FC<{
                 e.stopPropagation()
                 if (e.key === "ArrowDown") {
                   e.persist()
-                  console.log('key down: ', e)
                   e.preventDefault()
                   if (isOpen) {
                     if(myRef.current) {
@@ -257,6 +309,13 @@ const Select: React.FC<{
                         return prev
                       }
                       return !prev
+                    })
+                  } else {
+                    setIsOpen((): boolean => {
+                      if(containerRef.current) {
+                        containerRef.current.setAttribute("aria-expanded", 'true')
+                      }
+                      return true
                     })
                   }
                 }
