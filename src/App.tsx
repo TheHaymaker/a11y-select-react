@@ -36,6 +36,7 @@ const App: React.FC = (): React.ReactElement => {
       <Select selectOptions={selectOptions}
         label="Multi Input"
         type="multi"
+        hasCheckboxes
       />
       <Select 
         selectOptions={selectOptions}
@@ -44,8 +45,8 @@ const App: React.FC = (): React.ReactElement => {
       />
 
       <button onClick={() => setSelectOptions(prev => [...prev, {
-        value: `${prev.length}`,
-        label: `Option ${prev.length}`,
+        value: `${prev.length + 1}`,
+        label: `Option ${prev.length + 1}`,
       }])}
       >Add Item</button>
     </div>

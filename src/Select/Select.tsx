@@ -15,7 +15,7 @@ const Select: React.FC<{
   selection?: DropdownItem[] | [];
   hasClearAll?: boolean;
   hasCheckboxes?: boolean;
-}> = ({ type, label, selectOptions, selection = [], hasClearAll = true, hasCheckboxes = true }): React.ReactElement => {
+}> = ({ type, label, selectOptions, selection = [], hasClearAll = true, hasCheckboxes = false }): React.ReactElement => {
   let _timeoutID: number
   const [isManagingFocus, setIsManagingFocus] = React.useState(false)
 
@@ -54,12 +54,15 @@ const Select: React.FC<{
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [dropdownItems, setDropdownItems] = React.useState(selectOptions)
+
+  React.useEffect(() => {
+    setDropdownItems(selectOptions)
+  }, [selectOptions])
   const [filteredDropdownItems, setFilteredDropdownItems] = React.useState(
     selectOptions as DropdownItem[]
   )
   const [selected, setSelected] = React.useState(selection)
 
- 
   const [selectedRefs, setSelectedRefs] = React.useState<React.MutableRefObject<HTMLDivElement|null>[]>([])
   const multiInFocus = React.useRef(-9999)
 
@@ -663,7 +666,6 @@ const Select: React.FC<{
             ? filteredDropdownItems.map((item, index): React.ReactNode => (
               <li
                 key={item.value}
-                // id={`listItem--${item.value}`}
                 className="dropdownItem"
                 aria-label={"menuitemcheckbox"}
                 
@@ -727,44 +729,47 @@ const Select: React.FC<{
                     }
                   }}
                 >
-
-                  {selected.findIndex(el => el.value === item.value && el.label === item.label) !== -1 ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="25"
-                      height="21"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#000000"
-                      strokeWidth="2"
-                      strokeLinecap="square"
-                      strokeLinejoin="bevel"
-                    >
-                      <polyline points="9 11 12 14 22 4"></polyline>
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="25"
-                      height="21"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#000000"
-                      strokeWidth="2"
-                      strokeLinecap="square"
-                      strokeLinejoin="bevel"
-                    >
-                      <rect
-                        x="3"
-                        y="3"
-                        width="18"
-                        height="18"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                    </svg>
-                  )}{" "}
+                  {
+                    hasCheckboxes ? (selected.findIndex(el => el.value === item.value && el.label === item.label) !== -1 ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="21"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#000000"
+                        strokeWidth="2"
+                        strokeLinecap="square"
+                        strokeLinejoin="bevel"
+                      >
+                        <polyline points="9 11 12 14 22 4"></polyline>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="25"
+                        height="21"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#000000"
+                        strokeWidth="2"
+                        strokeLinecap="square"
+                        strokeLinejoin="bevel"
+                      >
+                        <rect
+                          x="3"
+                          y="3"
+                          width="18"
+                          height="18"
+                          rx="2"
+                          ry="2"
+                        ></rect>
+                      </svg>
+                    )
+                    ) : null
+                  }
+                  {" "}
                   <span
                     style={{
                       pointerEvents: "none",
