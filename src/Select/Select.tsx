@@ -27,6 +27,8 @@ const Select: React.FC<{
     _timeoutID = window.setTimeout((): void => {
       if (isManagingFocus) {
         setIsManagingFocus((): boolean => false)
+        setSearchValue('')
+        setFilteredDropdownItems(dropdownItems)
       }
     }, 0)
   }
@@ -84,11 +86,12 @@ const Select: React.FC<{
       // close the dropdown
       setIsOpen(false)
       setSearchValue('')
+      setFilteredDropdownItems(dropdownItems)
       if(containerRef.current && containerRef.current !== undefined) {
         containerRef.current.setAttribute("aria-expanded", 'false')
       }
     }
-  }, [isManagingFocus])
+  }, [dropdownItems, isManagingFocus])
 
   const handleKeyDownCapture = React.useCallback((e) => {
     if(e.key === 'ArrowLeft' && !searchValue) {
@@ -189,6 +192,7 @@ const Select: React.FC<{
                   aria-label="Remove selected item"
                   className="multiValue--close"
                   onClick={(): void => {
+                    if(item.label === "No Options" || item.value === '') return
                     setSelected(prev => {
                       const newArr = [...prev]
                       const isChosen = newArr.findIndex(el => el.value === item.value && el.label === item.label)
@@ -203,6 +207,9 @@ const Select: React.FC<{
                       }
 
                     })
+                    
+                    setSearchValue('')
+                    setFilteredDropdownItems(dropdownItems)
                     if(searchRef.current) {
                       searchRef.current.focus()
                     }
@@ -255,7 +262,7 @@ const Select: React.FC<{
                     }
 
                     let filteredItems = dropdownItems.reduce((filtered: DropdownItem[], item: DropdownItem) => {
-                      if (new RegExp(val).test(`${item.label}`)) {
+                      if (new RegExp(val, 'gi').test(`${item.label}`)) {
                         filtered.push(item)
                       }
                       return filtered
@@ -284,22 +291,37 @@ const Select: React.FC<{
                     if (isOpen) {
                       if(myRef.current) {
                         const childrenArr = (myRef.current.children as HTMLCollection)
-                        if(childrenArr[currentFocus]){
+                        if(!searchValue && childrenArr[currentFocus]){
                           const listItemParent = (childrenArr[currentFocus] as HTMLElement)
                           const btn = (listItemParent.children[0] as HTMLButtonElement)
                         
                           btn.focus()
                           btn.scrollIntoView(SCROLL_OPTIONS)
+                        } else {
+                          const listItemParent = (childrenArr[0] as HTMLElement)
+                          const btn = (listItemParent.children[0] as HTMLButtonElement)
+                          
+                          btn.focus()
+                          btn.scrollIntoView(SCROLL_OPTIONS)
                         }
+                        
                       }
                       setIsOpen((prev): boolean => {
                         if (prev) {
                           if(myRef.current) {
                             const childrenArr = (myRef.current.children as HTMLCollection)
-                            if(childrenArr[currentFocus]){
+                            if(!searchValue && childrenArr[currentFocus]){
                               const listItemParent = (childrenArr[currentFocus] as HTMLElement)
                               const btn = (listItemParent.children[0] as HTMLButtonElement)
                             
+                              setTimeout((): void => {
+                                btn.focus()
+                                btn.scrollIntoView(SCROLL_OPTIONS)
+                              }, 0)
+                            } else {
+                              const listItemParent = (childrenArr[0] as HTMLElement)
+                              const btn = (listItemParent.children[0] as HTMLButtonElement)
+                                
                               setTimeout((): void => {
                                 btn.focus()
                                 btn.scrollIntoView(SCROLL_OPTIONS)
@@ -344,13 +366,17 @@ const Select: React.FC<{
               <div key={item.value}
                 className="singleValue"
               >
-                <div className="singleValue--inner">{item.label}</div>
+                <div className="singleValue--inner">{!searchValue && item.label}</div>
                 {hasClearAll && 
                     <button
                       tabIndex={-1}
                       aria-label="Remove selected item"
                       className="singleValue--close"
-                      onClick={() => setSelected(() => [])}
+                      onClick={() => {
+                        setSelected(() => [])
+                        setSearchValue('')
+                        setFilteredDropdownItems(dropdownItems)
+                      }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -377,89 +403,113 @@ const Select: React.FC<{
                     </button>}
               </div>
             ))}
-            <input
-              ref={searchRef}
-              className="search-input"
-              id={"input-2"}
-              type="text"
-              onFocus={(e): void =>
-                setIsOpen((): boolean => {
-                  if(containerRef.current) {
-                    containerRef.current.setAttribute("aria-expanded", 'true')
+            <div className="input-size-wrapper">
+              <input
+                ref={searchRef}
+                className="search-input"
+                id={"input-2"}
+                type="text"
+                onFocus={(e): void => {
+                  multiInFocus.current = -9999
+                }}
+                value={searchValue ? searchValue : ""}
+                onChange={(e): void => {
+                  if(!isOpen) {
+                    setIsOpen(true)
                   }
-                  return true
-                })}
-              value={searchValue ? searchValue : ""}
-              onChange={(e): void => {
-                const val = escapeRegExp(e.target.value.trim())
-                const v = e.target.value.trimStart()
-                setSearchValue((prev): string => v)
-                if (val) {
+                  const val = escapeRegExp(e.target.value.trim())
+                  const v = e.target.value.trimStart()
+                  setSearchValue((prev): string => v)
+                  if (val) {
 
-                  let filteredItems = dropdownItems.reduce((filtered: DropdownItem[], item: DropdownItem) => {
-                    if (new RegExp(val).test(`${item.label}`)) {
-                      filtered.push(item)
-                    }
-                    return filtered
-                  }, [])
-
-
-                  filteredItems = filteredItems.length
-                    ? filteredItems
-                    : [
-                      {
-                        label: "No Options",
-                        value: "",
-                      },
-                    ]
-
-                  setFilteredDropdownItems(() => filteredItems)
-                } else {
-                  setFilteredDropdownItems(() => dropdownItems)
-                }
-              }}
-              onKeyDown={(e): void => {
-                e.stopPropagation()
-                if (e.key === "ArrowDown") {
-                  e.preventDefault()
-                  if (isOpen) {
-                    if(myRef.current) {
-                      const childrenArr = (myRef.current.children as HTMLCollection)
-                      if(childrenArr[currentFocus]){
-                        const listItemParent = (childrenArr[currentFocus] as HTMLElement)
-                        const btn = (listItemParent.children[0] as HTMLButtonElement)
-                        
-                        btn.focus()
-                        btn.scrollIntoView(SCROLL_OPTIONS)
-                      } else if(childrenArr[0]){
-                        const listItemParent = (childrenArr[0] as HTMLElement)
-                        const btn = (listItemParent.children[0] as HTMLButtonElement)
-                        
-                        btn.focus()
-                        btn.scrollIntoView(SCROLL_OPTIONS)
+                    let filteredItems = dropdownItems.reduce((filtered: DropdownItem[], item: DropdownItem) => {
+                      if (new RegExp(val, 'gi').test(`${item.label}`)) {
+                        filtered.push(item)
                       }
-                    }
+                      return filtered
+                    }, [])
+
+
+                    filteredItems = filteredItems.length
+                      ? filteredItems
+                      : [
+                        {
+                          label: "No Options",
+                          value: "",
+                        },
+                      ]
+
+                    setFilteredDropdownItems(() => filteredItems)
+                  } else {
+                    setFilteredDropdownItems(() => dropdownItems)
                   }
-                  setIsOpen((prev): boolean => {
-                    if (prev) {
+                }}
+                onKeyDown={(e): void => {
+                  e.stopPropagation()
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault()
+                    if (isOpen) {
                       if(myRef.current) {
                         const childrenArr = (myRef.current.children as HTMLCollection)
                         if(childrenArr[currentFocus]){
                           const listItemParent = (childrenArr[currentFocus] as HTMLElement)
                           const btn = (listItemParent.children[0] as HTMLButtonElement)
-                          setTimeout((): void => {
-                            btn.focus()
-                            btn.scrollIntoView(SCROLL_OPTIONS)
-                          }, 0)
+                        
+                          btn.focus()
+                          btn.scrollIntoView(SCROLL_OPTIONS)
+                        } else if(childrenArr[0]){
+                          const listItemParent = (childrenArr[0] as HTMLElement)
+                          const btn = (listItemParent.children[0] as HTMLButtonElement)
+                        
+                          btn.focus()
+                          btn.scrollIntoView(SCROLL_OPTIONS)
                         }
                       }
-                      return prev
                     }
-                    return !prev
-                  })
+                    setIsOpen((prev): boolean => {
+                      if (prev) {
+                        if(myRef.current) {
+                          const childrenArr = (myRef.current.children as HTMLCollection)
+                          if(childrenArr[currentFocus]){
+                            const listItemParent = (childrenArr[currentFocus] as HTMLElement)
+                            const btn = (listItemParent.children[0] as HTMLButtonElement)
+                            setTimeout((): void => {
+                              btn.focus()
+                              btn.scrollIntoView(SCROLL_OPTIONS)
+                            }, 0)
+                          } else {
+                            if(childrenArr[0]){
+                              const listItemParent = (childrenArr[0] as HTMLElement)
+                              const btn = (listItemParent.children[0] as HTMLButtonElement)
+                              setTimeout((): void => {
+                                btn.focus()
+                                btn.scrollIntoView(SCROLL_OPTIONS)
+                              }, 0)
+                            }
+                          }
+                        }
+                        return prev
+                      }
+                      return !prev
+                    })
+                  }
+                }}
+              />
+              <div ref={autoSizeRef}
+                style={
+                  {
+                    position: "absolute", 
+                    top: 0,
+                    left: 0,
+                    visibility: "hidden",
+                    height: 0, 
+                    overflow: "scroll", 
+                    whiteSpace: "pre",
+                    fontSize: '16px'
+                  }
                 }
-              }}
-            />
+              >{searchValue}</div>
+            </div>
           </div>
         )}
         <button
@@ -523,7 +573,6 @@ const Select: React.FC<{
             if (e.key === "ArrowDown") {
               e.preventDefault()
               if(myRef.current) {
-
                 if (
                   myRef.current.children.length === 0 ||
                   currentFocus === myRef.current.children.length - 1
@@ -546,6 +595,7 @@ const Select: React.FC<{
                     if(myRef.current) {
 
                       const childrenArr = (myRef.current.children as HTMLCollection)
+                      console.log(childrenArr)
                      
                       if (childrenArr.length <= currentFocus) {
                         if(childrenArr[0]){
@@ -613,8 +663,9 @@ const Select: React.FC<{
             ? filteredDropdownItems.map((item, index): React.ReactNode => (
               <li
                 key={item.value}
-                id={`listItem--${item.value}`}
+                // id={`listItem--${item.value}`}
                 className="dropdownItem"
+                aria-label={"menuitemcheckbox"}
                 
               >
                 <button
@@ -623,6 +674,8 @@ const Select: React.FC<{
                   aria-label={"menuitemcheckbox"}
                   aria-pressed={selected.findIndex(el => el.label === item.label && el.value === item.value) !== -1}
                   onClick={(e: React.MouseEvent): void => {
+
+                    if(item.label === "No Options" || item.value === '') return
 
                     if(type === 'multi') {
                       setSelected(prev => {
@@ -637,14 +690,18 @@ const Select: React.FC<{
                           newArr.push(item)
                           return newArr
                         }
-  
                       })
+                      setSearchValue('')
+                      setFilteredDropdownItems(dropdownItems)
                     } else {
                       setSelected(() => [item])
+                      setSearchValue('')
+                      setFilteredDropdownItems(dropdownItems)
                     }
                   }}
                   onKeyUp={(e: React.KeyboardEvent): void => {
                     if (e.key === "Enter" || e.key === " ") {
+                      if(item.label === "No Options" || item.value === '') return
                       if(type === 'multi') {
                         setSelected(prev => {
                           const newArr = [...prev]
@@ -660,8 +717,12 @@ const Select: React.FC<{
                           }
     
                         })
+                        setSearchValue('')
+                        setFilteredDropdownItems(dropdownItems)
                       } else {
                         setSelected(() => [item])
+                        setSearchValue('')
+                        setFilteredDropdownItems(dropdownItems)
                       }
                     }
                   }}
