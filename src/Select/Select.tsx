@@ -699,6 +699,14 @@ const Select: React.FC<{
                       setSelected(() => [item])
                       setSearchValue('')
                       setFilteredDropdownItems(dropdownItems)
+                      
+                      setIsOpen((prev): boolean => {
+                        if(containerRef.current) {
+                          containerRef.current.focus()
+                          containerRef.current.setAttribute("aria-expanded", 'false')
+                        }
+                        return false
+                      })
                     }
                   }}
                   onKeyUp={(e: React.KeyboardEvent): void => {
@@ -725,6 +733,17 @@ const Select: React.FC<{
                         setSelected(() => [item])
                         setSearchValue('')
                         setFilteredDropdownItems(dropdownItems)
+                        
+                        if(searchRef.current) {
+                          searchRef.current.focus()
+                        }
+                        setIsOpen((prev): boolean => {
+                          if(containerRef.current) {
+                            containerRef.current.focus()
+                            containerRef.current.setAttribute("aria-expanded", 'false')
+                          }
+                          return false
+                        })
                       }
                     }
                   }}
