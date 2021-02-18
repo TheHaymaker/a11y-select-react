@@ -44,10 +44,19 @@ const App: React.FC = (): React.ReactElement => {
         type="single"
       />
 
-      <button onClick={() => setSelectOptions(prev => [...prev, {
-        value: `${prev.length + 1}`,
-        label: `Option ${prev.length + 1}`,
-      }])}
+      <button
+        style={{
+          padding: "10px 0px",
+          borderRadius: "3px",
+          border: "0px",
+          backgroundColor: "#3a83bd",
+          color: "whitesmoke",
+          boxShadow: "0px 2px 7px -4px black",
+        }} 
+        onClick={() => setSelectOptions(prev => [...prev, {
+          value: `${prev.length + 1}`,
+          label: `Option ${prev.length + 1}`,
+        }])}
       >Add Item</button>
     </div>
   )}

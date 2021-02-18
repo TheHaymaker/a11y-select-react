@@ -8,6 +8,6 @@
   display: grid;
   grid-template-rows: 1fr;
   grid-template-columns: 350px;
-  grid-gap: 100px;
+  grid-gap: 30px;
   width: 321px;
 }
