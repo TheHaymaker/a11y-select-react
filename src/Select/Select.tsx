@@ -699,10 +699,11 @@ const Select: React.FC<{
                       setSelected(() => [item])
                       setSearchValue('')
                       setFilteredDropdownItems(dropdownItems)
-                      
+                      if(searchRef.current) {
+                        searchRef.current.focus()
+                      }
                       setIsOpen((prev): boolean => {
                         if(containerRef.current) {
-                          containerRef.current.focus()
                           containerRef.current.setAttribute("aria-expanded", 'false')
                         }
                         return false
@@ -739,7 +740,6 @@ const Select: React.FC<{
                         }
                         setIsOpen((prev): boolean => {
                           if(containerRef.current) {
-                            containerRef.current.focus()
                             containerRef.current.setAttribute("aria-expanded", 'false')
                           }
                           return false
