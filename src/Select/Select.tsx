@@ -194,7 +194,8 @@ const Select: React.FC<{
                   tabIndex={-1}
                   aria-label="Remove selected item"
                   className="multiValue--close"
-                  onClick={(): void => {
+                  onClick={(e): void => {
+                    e.stopPropagation()
                     if(item.label === "No Options" || item.value === '') return
                     setSelected(prev => {
                       const newArr = [...prev]
@@ -375,7 +376,8 @@ const Select: React.FC<{
                       tabIndex={-1}
                       aria-label="Remove selected item"
                       className="singleValue--close"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation()
                         setSelected(() => [])
                         setSearchValue('')
                         setFilteredDropdownItems(dropdownItems)
